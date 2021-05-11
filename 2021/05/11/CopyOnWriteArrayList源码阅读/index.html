@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta http-equiv='x-dns-prefetch-control' content='on' />
@@ -24,7 +22,7 @@
 
   <!-- 页面元数据 -->
   
-  <title>归档：2021/5 - 云中小屋</title>
+  <title>云中小屋</title>
   
 
   
@@ -104,7 +102,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <body>
     
 
-<header id="l_header" class="l_header auto shadow blur " style='opacity: 0' >
+<header id="l_header" class="l_header auto shadow blur show" style='opacity: 0' >
   <div class='container'>
   <div id='wrapper'>
     <div class='nav-sub'>
@@ -355,7 +353,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       <div id="l_cover">
   
     
-        <div id="half" class='cover-wrapper  dock' style="display: ;">
+        <div id="full" class='cover-wrapper post dock' style="display: none;">
           
             <div class='cover-bg lazyload placeholder' data-bg="https://p7.qhimg.com/bdm/1000_618_80/t013f10ff78d8d7c34b.jpg"></div>
           
@@ -431,565 +429,240 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           
 
 <div class='l_main'>
-	
-		
-  <section class="post-list">
-    
-      
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      
-    
-    
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
   
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        CopyOnWriteArraySet源码阅读
-Set sets = new CopyOnWriteArraySet(); // JUC包下的并发安全 CopyOnWriteArraySet
 
 
-
-通过查看源码可知———–&gt;CopyOnWriteArraySet的底层就是new了一个==CopyOnWriteArrayList==
-
-/**
- * 当我们实例化CopyOnWriteAr...
-      
+  
+  <div class="article-meta" id="top">
+    
+    
     
   </div>
+
+
   
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
+  
+  <h1 id="CopyOnWriteArraySet源码阅读"><a href="#CopyOnWriteArraySet源码阅读" class="headerlink" title="CopyOnWriteArraySet源码阅读"></a>CopyOnWriteArraySet源码阅读</h1><blockquote>
+<pre><code class="java">Set sets = new CopyOnWriteArraySet(); // JUC包下的并发安全 CopyOnWriteArraySet
+</code></pre>
+</blockquote>
+<blockquote>
+<p>通过查看源码可知———–&gt;CopyOnWriteArraySet的底层就是new了一个==CopyOnWriteArrayList==</p>
+</blockquote>
+<pre><code class="java">/**
+ * 当我们实例化CopyOnWriteArraySet集合时，java底层创建的是CopyOnWriteArrayList集合
+ */
+public CopyOnWriteArraySet() &#123;
+    al = new CopyOnWriteArrayList&lt;E&gt;();
+&#125;
+</code></pre>
+<blockquote>
+<p>new CopyOnWriteArrayList<E>();</p>
+</blockquote>
+<pre><code class="java">/**
+ * 当我们实例化CopyOnWriteArrayList集合时,底层调用了setArray((new Object[0]))方法
+ */
+public CopyOnWriteArrayList() &#123;
+    setArray(new Object[0]);
+&#125;
+
+/**
+* CopyOnWriteArrayList底层就是一个对象数组
+*/
+final void setArray(Object[] a) &#123;
+    array = a;
+&#125;
+
+/**
+* transient是类型修饰符，只能用来修饰字段。在对象序列化的过程中，标记为transient的变量不会被序列化。
+* volatile也是变量修饰符，只能用来修饰变量。volatile修饰的成员变量在每次被线程访问时，都强迫从共享内存中重读该成员变量的值。而且，当成员变量发生变化时，强迫线程将变化值回写到共享内存。这样在任何时刻，两个不同的线程总是看到某个成员变量的同一个值。
+*/
+private transient volatile Object[] array;
+</code></pre>
+<blockquote>
+<p>add()方法</p>
+</blockquote>
+<pre><code class="java">/**
+ * 将指定的元素追加到此列表的末尾。
+ *
+ * @param e 要添加到此列表的元素
+ * @return &#123;@code true&#125; (as specified by &#123;@link Collection#add&#125;)
+ */
+public boolean add(E e) &#123;
+    //添加元素到集合中前先加上lock锁所以==CopyOnWriteArrayList==是线程安全的
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    //下面就执行添加元素的操作
+    try &#123;
+        //获取当前数组
+        Object[] elements = getArray();
+        //获取当前数组的长度
+        int len = elements.length;
+        //复制当前数组为一个长度+1的新数组
+        Object[] newElements = Arrays.copyOf(elements, len + 1);
+        //把元素添加到新的数组中
+        newElements[len] = e;
+        //再用新的数组替换当前的数组 就完成了添加元素的操作
+        setArray(newElements);
+        return true;
+    &#125; finally &#123;
+        //最后释放lock锁
+        lock.unlock();
+    &#125;
+&#125;
+
+/**
+* CopyOnWriteArrayList底层就是一个对象数组
+*/
+final void setArray(Object[] a) &#123;
+    array = a;
+&#125;
+</code></pre>
+
+  
+  
+    
+    <div class='footer'>
       
-        <div>
-          <a class='readmore' href='/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/'>
-            阅读全文
-          </a>
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=http://pl129021.github.io/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/>http://pl129021.github.io/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</a></p>
+              
+            
+          </blockquote>
         </div>
+      
       
     </div>
   
+  
+    
 
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-02-25T09:48:22+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2021年2月25日</p>
+  </a>
 </div>
 
-          </div>
         
       
         
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-3-16-%E5%88%86%E5%B8%83%E5%BC%8F-dubbo-zookeeper/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
     
       
-        分布式/Dubbo/Zookeeper
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://pl129021.github.io/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/&title= - 云中小屋&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://pl129021.github.io/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/&title= - 云中小屋&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://pl129021.github.io/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/&title= - 云中小屋&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+      
+        <a class='next' href='/2021/05/11/2021-3-16-%E5%88%86%E5%B8%83%E5%BC%8F-dubbo-zookeeper/'>
+          <p class='title'><i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>分布式/Dubbo/Zookeeper
 什么是分布式系统?
 
 ==分布式系统是若干独立计算机的集合，这计算机对用户来说就像单个相关系统。==
 
 什么是Dubbo?
 
-一个远程调用服务的分布式框架，可以实现远程通讯、动态配置、地址路由。Dubbo实现服务调用是通过RPC的方式
-
-什么是Zookeeper?
-
-ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，类似一个服务注册中...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-3-16-%E5%88%86%E5%B8%83%E5%BC%8F-dubbo-zookeeper/'>
-            阅读全文
-          </a>
-        </div>
+一个远程调用服务的分布式框架...</p>
+        </a>
       
     </div>
   
+</article>
 
+
+  
+
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="valine_container" class="valine_thread">
+  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
 </div>
 
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-3-01-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        设计模式(Gof、Gof23)
-创建型模式:
+  </article>
 
 
-单例模式
-工厂模式
-抽象工厂模式
-原型模式
-建造者模式
 
 
-结构型模式
 
 
-适配器模式
-桥接模式
-装饰模式
-组合模式
-外观模式
-享元模式
-代理模式
-
-
-行为型模式（带补充）
-
-==oop七大原则==
-开闭原则:对扩展开发、对修改关闭
-里氏替换原则:继承必须确保超类所拥有的性质在子类中仍然成立
-依赖倒置原则:要面向接口编程、不用面向实现编程
-单...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-3-01-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-3-01-RabbitMQ/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        RabbitMQ1. MQ引言1.1 什么是MQ
-1.2 MQ有哪些
-1.3 MQ的不同特点
-2. RabbitMQ2.1 RabbitMQ
-基于==AMQP==协议，erlang语言开发，是部署最广泛的开源消息中间件，是最受欢迎的开源消息中间件之一。
-
-# AMQP 协议
-AMQP，即Advanced Message Queuing Protocol，一个提供统一消息服务的应用层标准高级消...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-3-01-RabbitMQ/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-03-17-SpringCloud/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        SpringCloud什么是SpringCloud?
-
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-03-17-SpringCloud/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-2-26-JVM/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        JVM
-谈谈对JVM的理解，java8虚拟机和之前的变化更新?
-什么是OOM，什么是栈溢出
-JVM的常用调优参数
-JVM类加载器的认识
-内存快照如何抓取，怎么分析Dump文件?
-
-
-JVM的位置
-==运行在操作系统上==
-
-JVM的体系结构
-
-
-类加载器
-
-双亲委派机制
-
-沙箱安全机制
-
-Native
-
-PC寄存器
-
-方法区
-
-栈
-
-三种JVM
-
-堆
-
-新生区、老年区
-
-永久区
-
-堆内存调优...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-2-26-JVM/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-2-24-JUC/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        JUC
-什么是JUC ? ==java util concurrent== 
-
-
-1、线程和进程
-==进程: 一个程序。一个进程往往可以包含多个线程。cpu分配资源的基本单位== 
-
-
-==线程: cpu调度和分派的基本单位。== java默认2个线程main线程和GC守护线程！
-
-
-并发、并行
-
-
-线程有几个==状态==?
-
-public enum State &#123;        ...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-2-24-JUC/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-2-18-SpringSecurity/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        SpringSecurity(安全框架)做网站的，安全应该在什么时候考虑?
-
-设计之初
-
-shiro、Springsecurity：很像-除了类不一样，名字不一样!
-
-认证、授权
-
-
-功能权限
-访问权限
-菜单权限
-拦截器、过滤器、大量的原生代码冗余
-
-AOP：横切进去
-认证：//    认证
-    @Override
-    protected void configure(HttpSec...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-2-18-SpringSecurity/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-2-18-Shiro/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        Shiro
-shiro主要有三大功能模块
-
-
-Subject：主体，当前操作的对象
-
-SecurityManager：安全管理器，管理所有的Subject，可以配合内部安全组件。
-
-Realms：用于进行权限信息的验证，一般需要自己实现
-
-
-
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-2-18-Shiro/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-    
-  </section>
-  
-    
-  
-
-
-	
 </div>
 <aside class='l_side'>
   
@@ -997,109 +670,28 @@ Realms：用于进行权限信息的验证，一般需要自己实现
     
     
 
-<section class="widget blogger shadow desktop mobile">
-  <div class='content'>
-    
-      
-        <a class='avatar flat-box rectangle' href='/about/'>
-          <img no-lazy src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/Logo-NavBar@3x.png'/>
-        </a>
-      
-    
-    
-      <div class='text'>
-        
-        
-        
-          <p><span id="jinrishici-sentence">云中小屋</span></p>
-          <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-        
-      </div>
-    
-    
-      <div class="social-wrapper">
-        
-          
-            <a href="/atom.xml"
-              class="social fas fa-rss flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="mailto:me@xxx.com"
-              class="social fas fa-envelope flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="https://github.com/volantis-x/"
-              class="social fab fa-github flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="/"
-              class="social fas fa-headphones-alt flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-      </div>
-    
-  </div>
-</section>
 
-  
 
-  
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
     
+  <header>
     
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
 
-  
 
-  
-    
-    
+    <div class='content'>
+        
+    </div>
+  </section>
 
-  
-
-  
-    
-    
-
-<section class="widget qrcode shadow desktop mobile">
-  
-
-  <div class='content article-entry'>
-    
-      <img src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/qrcode/github@volantis.png'
-      
-        height='64px'
-      />
-    
-      <img src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/qrcode/github@volantis.png'
-      
-        height='64px'
-      />
-    
-  </div>
-</section>
 
   
 
 
 </aside>
+
 
 
 		  
@@ -1115,14 +707,14 @@ Realms：用于进行权限信息的验证，一般需要自己实现
   // header 这里无论是否开启pjax都需要
   var l_header=document.getElementById("l_header");
   
-  l_header.classList.remove("show");
+  l_header.classList.add("show");
   
   
     // cover
     var cover_wrapper=document.querySelector('.cover-wrapper');
     
-    cover_wrapper.id="half";
-    cover_wrapper.style.display="";
+    cover_wrapper.id="none";
+    cover_wrapper.style.display="none";
     
   
 </script>

@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta http-equiv='x-dns-prefetch-control' content='on' />
@@ -24,7 +22,7 @@
 
   <!-- 页面元数据 -->
   
-  <title>归档：2021/5 - 云中小屋</title>
+  <title>云中小屋</title>
   
 
   
@@ -104,7 +102,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <body>
     
 
-<header id="l_header" class="l_header auto shadow blur " style='opacity: 0' >
+<header id="l_header" class="l_header auto shadow blur show" style='opacity: 0' >
   <div class='container'>
   <div id='wrapper'>
     <div class='nav-sub'>
@@ -355,7 +353,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       <div id="l_cover">
   
     
-        <div id="half" class='cover-wrapper  dock' style="display: ;">
+        <div id="full" class='cover-wrapper post dock' style="display: none;">
           
             <div class='cover-bg lazyload placeholder' data-bg="https://p7.qhimg.com/bdm/1000_618_80/t013f10ff78d8d7c34b.jpg"></div>
           
@@ -431,157 +429,252 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           
 
 <div class='l_main'>
-	
-		
-  <section class="post-list">
-    
-      
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      
-    
-    
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
   
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        CopyOnWriteArraySet源码阅读
-Set sets = new CopyOnWriteArraySet(); // JUC包下的并发安全 CopyOnWriteArraySet
 
 
+  
+  <div class="article-meta" id="top">
+    
+    
+    
+  </div>
 
-通过查看源码可知———–&gt;CopyOnWriteArraySet的底层就是new了一个==CopyOnWriteArrayList==
+
+  
+  
+  <h1 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h1><h2 id="1-MQ引言"><a href="#1-MQ引言" class="headerlink" title="1. MQ引言"></a>1. MQ引言</h2><h3 id="1-1-什么是MQ"><a href="#1-1-什么是MQ" class="headerlink" title="1.1 什么是MQ"></a>1.1 什么是MQ</h3><p><img src="C:\Users\86156\AppData\Roaming\Typora\typora-user-images\image-20210304093050947.png" class="lazyload" data-srcset="C:\Users\86156\AppData\Roaming\Typora\typora-user-images\image-20210304093050947.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image-20210304093050947"></p>
+<h3 id="1-2-MQ有哪些"><a href="#1-2-MQ有哪些" class="headerlink" title="1.2 MQ有哪些"></a>1.2 MQ有哪些</h3><p><img src="C:\Users\86156\AppData\Roaming\Typora\typora-user-images\image-20210304093119055.png" class="lazyload" data-srcset="C:\Users\86156\AppData\Roaming\Typora\typora-user-images\image-20210304093119055.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image-20210304093119055"></p>
+<h3 id="1-3-MQ的不同特点"><a href="#1-3-MQ的不同特点" class="headerlink" title="1.3 MQ的不同特点"></a>1.3 MQ的不同特点</h3><p><img src="C:\Users\86156\AppData\Roaming\Typora\typora-user-images\image-20210304093209610.png" class="lazyload" data-srcset="C:\Users\86156\AppData\Roaming\Typora\typora-user-images\image-20210304093209610.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image-20210304093209610"></p>
+<h2 id="2-RabbitMQ"><a href="#2-RabbitMQ" class="headerlink" title="2. RabbitMQ"></a>2. RabbitMQ</h2><h3 id="2-1-RabbitMQ"><a href="#2-1-RabbitMQ" class="headerlink" title="2.1 RabbitMQ"></a>2.1 RabbitMQ</h3><blockquote>
+<p>基于==AMQP==协议，erlang语言开发，是部署最广泛的开源消息中间件，是最受欢迎的开源消息中间件之一。</p>
+</blockquote>
+<pre><code class="markdown"># AMQP 协议
+AMQP，即Advanced Message Queuing Protocol，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同的开发语言等条件的限制。Erlang中的实现有RabbitMQ等。
+</code></pre>
+<h2 id="Springboot整合RabbitMq"><a href="#Springboot整合RabbitMq" class="headerlink" title="Springboot整合RabbitMq"></a>Springboot整合RabbitMq</h2><p>RabbitMQ和Springboot是用一家公司的，所以它们两个的整合很方便。首先导入<code>RabbitMQ依赖</code></p>
+<pre><code class="xml">        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-amqp&lt;/artifactId&gt;
+            &lt;version&gt;2.4.3&lt;/version&gt;
+        &lt;/dependency&gt;
+</code></pre>
+<blockquote>
+<p>RabbitMq中声明注册交换机和声明注册消息队列可以使用Config文件来无缝完美注册！==以下以fanout模式的交换机为例子==</p>
+</blockquote>
+<pre><code class="java">package com.pl.config;
+
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * 当我们实例化CopyOnWriteAr...
-      
+ * @author 彭蕾
+ * @date 2021-03-1511:15
+ **/
+@Configuration
+public class RabbitMqConfig &#123;
     
-  </div>
+    //注册交换机 (fanout模式交换机，不同模式的交换机就是返回值修改为对应模式即可)FanoutExchange
+    @Bean
+    public FanoutExchange fanoutExchange()&#123;
+        //  &quot;fanout_order_exchange&quot; 交换机名字   true 是否次持久化  false 是否销毁
+        return new FanoutExchange(&quot;fanout_order_exchange&quot;,true,false);
+    &#125;
+
+    //注册队列
+    @Bean
+    public Queue queue1()&#123;
+        //  &quot;queue1&quot; 队列名字  true 是否持久化
+        return new Queue(&quot;queue1&quot;,true);
+    &#125;
+    @Bean
+    public Queue queue2()&#123;
+        return new Queue(&quot;queue2&quot;,true);
+    &#125;
+    @Bean
+    public Queue queue3()&#123;
+        return new Queue(&quot;queue3&quot;,true);
+    &#125;
+
+    //绑定交换机和队列
+    @Bean
+    public Binding bindingBuilder1()&#123;
+        //  bind(队列).to(交换机)
+        return BindingBuilder.bind(queue1()).to(fanoutExchange());
+    &#125;
+
+    @Bean
+    public Binding bindingBuilder2()&#123;
+        return BindingBuilder.bind(queue2()).to(fanoutExchange());
+    &#125;
+
+    @Bean
+    public Binding bindingBuilder3()&#123;
+        return BindingBuilder.bind(queue3()).to(fanoutExchange());
+    &#125;
+&#125;
+</code></pre>
+<h3 id="一-fanout模式-生产者需要指定交换机和队列的config"><a href="#一-fanout模式-生产者需要指定交换机和队列的config" class="headerlink" title="一.fanout模式(生产者需要指定交换机和队列的config)"></a>一.fanout模式(生产者需要指定交换机和队列的config)</h3><blockquote>
+<p>生产者</p>
+</blockquote>
+<pre><code class="java">/**
+ * @author 彭蕾
+ * @date 2021-03-1510:42
+ **/
+@Service
+public class RabbitMqService &#123;
+
+    @Autowired
+    AmqpTemplate amqpTemplate;
+    /** 
+     * @Author: 彭蕾
+     * @Description: 创建订单
+     * @Param: [userId, productId, num] 
+     * @return: void
+     * @Date: 2021-03-15 10:43
+    **/
+    public void makeOreder(int userId,int productId,int num)&#123;
+        //这里使用uuid代替消息
+        String uuid = UUID.randomUUID().toString();
+        //交换机名字
+        String exchang = &quot;fanout_order_exchange&quot;;
+        //路由key
+        String routerKey = &quot;&quot;;
+        //发送消息到交换机中
+        amqpTemplate.convertAndSend(exchang,routerKey,uuid);
+    &#125;
+&#125;
+</code></pre>
+<blockquote>
+<p>消费者</p>
+</blockquote>
+<pre><code class="java">@Component //声明该类被spring托管
+@RabbitListener(queues = &quot;queue1&quot;) //开启rabbitmq消费者监听 queues=&quot;&quot;监听该队列
+public class ConSumeService1 &#123;
+
+    @RabbitHandler //声明消息的落脚点(也就是消费者的&#39;消费处理&#39;在该注解的方法里)
+    public void consume(String message)&#123;
+        System.out.println(&quot;消费者消息接送&quot;+message);
+    &#125;
+&#125;
+</code></pre>
+
   
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
+  
+    
+    <div class='footer'>
       
-        <div>
-          <a class='readmore' href='/2021/05/11/CopyOnWriteArrayList%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/'>
-            阅读全文
-          </a>
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=http://pl129021.github.io/2021/05/11/2021-3-01-RabbitMQ/>http://pl129021.github.io/2021/05/11/2021-3-01-RabbitMQ/</a></p>
+              
+            
+          </blockquote>
         </div>
+      
       
     </div>
   
+  
+    
 
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-03-17T14:50:11+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2021年3月17日</p>
+  </a>
 </div>
 
-          </div>
         
       
         
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-3-16-%E5%88%86%E5%B8%83%E5%BC%8F-dubbo-zookeeper/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
     
       
-        分布式/Dubbo/Zookeeper
-什么是分布式系统?
-
-==分布式系统是若干独立计算机的集合，这计算机对用户来说就像单个相关系统。==
-
-什么是Dubbo?
-
-一个远程调用服务的分布式框架，可以实现远程通讯、动态配置、地址路由。Dubbo实现服务调用是通过RPC的方式
-
-什么是Zookeeper?
-
-ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，类似一个服务注册中...
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://pl129021.github.io/2021/05/11/2021-3-01-RabbitMQ/&title= - 云中小屋&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://pl129021.github.io/2021/05/11/2021-3-01-RabbitMQ/&title= - 云中小屋&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://pl129021.github.io/2021/05/11/2021-3-01-RabbitMQ/&title= - 云中小屋&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+    
       
     
   </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-3-16-%E5%88%86%E5%B8%83%E5%BC%8F-dubbo-zookeeper/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
 </div>
 
-          </div>
+
+
         
       
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
+    </div>
+  </div>
+
+
   
   
+
   
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-3-01-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
+    <div class="prev-next">
       
-        设计模式(Gof、Gof23)
+        <a class='prev' href='/2021/05/11/2021-3-01-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i></p>
+          <p class='content'>设计模式(Gof、Gof23)
 创建型模式:
 
 
@@ -601,395 +694,37 @@ ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服�
 组合模式
 外观模式
 享元模式
-代理模式
-
-
-行为型模式（带补充）
-
-==oop七大原则==
-开闭原则:对扩展开发、对修改关闭
-里氏替换原则:继承必须确保超类所拥有的性质在子类中仍然成立
-依赖倒置原则:要面向接口编程、不用面向实现编程
-单...
+代理模...</p>
+        </a>
       
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
       
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-3-01-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/'>
-            阅读全文
-          </a>
-        </div>
+        <a class='next' href='/2021/05/11/2021-03-17-SpringCloud/'>
+          <p class='title'><i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>SpringCloud什么是SpringCloud?
+</p>
+        </a>
       
     </div>
   
+</article>
 
+
+  
+
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="valine_container" class="valine_thread">
+  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
 </div>
 
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-3-01-RabbitMQ/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        RabbitMQ1. MQ引言1.1 什么是MQ
-1.2 MQ有哪些
-1.3 MQ的不同特点
-2. RabbitMQ2.1 RabbitMQ
-基于==AMQP==协议，erlang语言开发，是部署最广泛的开源消息中间件，是最受欢迎的开源消息中间件之一。
-
-# AMQP 协议
-AMQP，即Advanced Message Queuing Protocol，一个提供统一消息服务的应用层标准高级消...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-3-01-RabbitMQ/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-03-17-SpringCloud/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        SpringCloud什么是SpringCloud?
-
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-03-17-SpringCloud/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-2-26-JVM/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        JVM
-谈谈对JVM的理解，java8虚拟机和之前的变化更新?
-什么是OOM，什么是栈溢出
-JVM的常用调优参数
-JVM类加载器的认识
-内存快照如何抓取，怎么分析Dump文件?
-
-
-JVM的位置
-==运行在操作系统上==
-
-JVM的体系结构
-
-
-类加载器
-
-双亲委派机制
-
-沙箱安全机制
-
-Native
-
-PC寄存器
-
-方法区
-
-栈
-
-三种JVM
-
-堆
-
-新生区、老年区
-
-永久区
-
-堆内存调优...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-2-26-JVM/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-2-24-JUC/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        JUC
-什么是JUC ? ==java util concurrent== 
-
-
-1、线程和进程
-==进程: 一个程序。一个进程往往可以包含多个线程。cpu分配资源的基本单位== 
-
-
-==线程: cpu调度和分派的基本单位。== java默认2个线程main线程和GC守护线程！
-
-
-并发、并行
-
-
-线程有几个==状态==?
-
-public enum State &#123;        ...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-2-24-JUC/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-2-18-SpringSecurity/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        SpringSecurity(安全框架)做网站的，安全应该在什么时候考虑?
-
-设计之初
-
-shiro、Springsecurity：很像-除了类不一样，名字不一样!
-
-认证、授权
-
-
-功能权限
-访问权限
-菜单权限
-拦截器、过滤器、大量的原生代码冗余
-
-AOP：横切进去
-认证：//    认证
-    @Override
-    protected void configure(HttpSec...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-2-18-SpringSecurity/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/05/11/2021-2-18-Shiro/">
-        2021年5月11日
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        Shiro
-shiro主要有三大功能模块
-
-
-Subject：主体，当前操作的对象
-
-SecurityManager：安全管理器，管理所有的Subject，可以配合内部安全组件。
-
-Realms：用于进行权限信息的验证，一般需要自己实现
+  </article>
 
 
 
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-05-11</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/05/11/2021-2-18-Shiro/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-    
-  </section>
-  
-    
-  
 
 
-	
+
 </div>
 <aside class='l_side'>
   
@@ -997,109 +732,28 @@ Realms：用于进行权限信息的验证，一般需要自己实现
     
     
 
-<section class="widget blogger shadow desktop mobile">
-  <div class='content'>
-    
-      
-        <a class='avatar flat-box rectangle' href='/about/'>
-          <img no-lazy src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/Logo-NavBar@3x.png'/>
-        </a>
-      
-    
-    
-      <div class='text'>
-        
-        
-        
-          <p><span id="jinrishici-sentence">云中小屋</span></p>
-          <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-        
-      </div>
-    
-    
-      <div class="social-wrapper">
-        
-          
-            <a href="/atom.xml"
-              class="social fas fa-rss flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="mailto:me@xxx.com"
-              class="social fas fa-envelope flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="https://github.com/volantis-x/"
-              class="social fab fa-github flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="/"
-              class="social fas fa-headphones-alt flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-      </div>
-    
-  </div>
-</section>
 
-  
 
-  
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
     
+  <header>
     
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
 
-  
 
-  
-    
-    
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-MQ%E5%BC%95%E8%A8%80"><span class="toc-text">1. MQ引言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AFMQ"><span class="toc-text">1.1 什么是MQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-MQ%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="toc-text">1.2 MQ有哪些</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-MQ%E7%9A%84%E4%B8%8D%E5%90%8C%E7%89%B9%E7%82%B9"><span class="toc-text">1.3 MQ的不同特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-RabbitMQ"><span class="toc-text">2. RabbitMQ</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-RabbitMQ"><span class="toc-text">2.1 RabbitMQ</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Springboot%E6%95%B4%E5%90%88RabbitMq"><span class="toc-text">Springboot整合RabbitMq</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80-fanout%E6%A8%A1%E5%BC%8F-%E7%94%9F%E4%BA%A7%E8%80%85%E9%9C%80%E8%A6%81%E6%8C%87%E5%AE%9A%E4%BA%A4%E6%8D%A2%E6%9C%BA%E5%92%8C%E9%98%9F%E5%88%97%E7%9A%84config"><span class="toc-text">一.fanout模式(生产者需要指定交换机和队列的config)</span></a></li></ol></li></ol>
+    </div>
+  </section>
 
-  
-
-  
-    
-    
-
-<section class="widget qrcode shadow desktop mobile">
-  
-
-  <div class='content article-entry'>
-    
-      <img src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/qrcode/github@volantis.png'
-      
-        height='64px'
-      />
-    
-      <img src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/qrcode/github@volantis.png'
-      
-        height='64px'
-      />
-    
-  </div>
-</section>
 
   
 
 
 </aside>
+
 
 
 		  
@@ -1115,14 +769,14 @@ Realms：用于进行权限信息的验证，一般需要自己实现
   // header 这里无论是否开启pjax都需要
   var l_header=document.getElementById("l_header");
   
-  l_header.classList.remove("show");
+  l_header.classList.add("show");
   
   
     // cover
     var cover_wrapper=document.querySelector('.cover-wrapper');
     
-    cover_wrapper.id="half";
-    cover_wrapper.style.display="";
+    cover_wrapper.id="none";
+    cover_wrapper.style.display="none";
     
   
 </script>
