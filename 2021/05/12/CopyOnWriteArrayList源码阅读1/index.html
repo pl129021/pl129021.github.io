@@ -5,12 +5,16 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>云中小屋</title>
+    <title>CopyOnWriteArraySet源码阅读1 - 云中小屋</title>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="google" content="notranslate" />
     <meta name="keywords" content="Fechin,"> 
-    
+    <meta name="description" content="CopyOnWriteArraySet源码阅读
+1Set sets = new CopyOnWriteArraySet(); // JUC包下的并发安全 CopyOnWriteArraySet
+
+
+,"> 
     <meta name="author" content="彭蕾"> 
     <link rel="alternative" href="atom.xml" title="云中小屋" type="application/atom+xml"> 
     <link rel="icon" href="/img/favicon.png"> 
@@ -23,16 +27,36 @@
 <body class="loading">
     <span id="config-title" style="display:none">云中小屋</span>
     <div id="loader"></div>
-    <div id="single" class="page">
-    <div id="top">
-        <a class="iconfont icon-left image-icon" href="javascript:history.back()"></a>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="http://pl129021.github.io"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">CopyOnWriteArraySet源码阅读1</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
     </div>
+    <div class="scrollbar"></div>
+</div>
+
     <div class="section">
         <div class="article">
-            <div class="main">
-                <div class="content">
-                
-                        <h1 id="CopyOnWriteArraySet源码阅读"><a href="#CopyOnWriteArraySet源码阅读" class="headerlink" title="CopyOnWriteArraySet源码阅读"></a>CopyOnWriteArraySet源码阅读</h1><blockquote>
+    <div class='main'>
+        <h1 class="title">CopyOnWriteArraySet源码阅读1</h1>
+        <div class="stuff">
+            <span>五月 12, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/CopyOnWriteArraySet/" rel="tag">CopyOnWriteArraySet</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h1 id="CopyOnWriteArraySet源码阅读"><a href="#CopyOnWriteArraySet源码阅读" class="headerlink" title="CopyOnWriteArraySet源码阅读"></a>CopyOnWriteArraySet源码阅读</h1><blockquote>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set sets = <span class="keyword">new</span> CopyOnWriteArraySet(); <span class="comment">// JUC包下的并发安全 CopyOnWriteArraySet</span></span><br></pre></td></tr></table></figure>
 </blockquote>
 <blockquote>
@@ -49,13 +73,32 @@
 <p>add()方法</p>
 </blockquote>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 将指定的元素追加到此列表的末尾。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> e 要添加到此列表的元素</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="doctag">@code</span> true&#125; (as specified by &#123;<span class="doctag">@link</span> Collection#add&#125;)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//添加元素到集合中前先加上lock锁所以==CopyOnWriteArrayList==是线程安全的</span></span><br><span class="line">    <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</span><br><span class="line">    lock.lock();</span><br><span class="line">    <span class="comment">//下面就执行添加元素的操作</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">//获取当前数组</span></span><br><span class="line">        Object[] elements = getArray();</span><br><span class="line">        <span class="comment">//获取当前数组的长度</span></span><br><span class="line">        <span class="keyword">int</span> len = elements.length;</span><br><span class="line">        <span class="comment">//复制当前数组为一个长度+1的新数组</span></span><br><span class="line">        Object[] newElements = Arrays.copyOf(elements, len + <span class="number">1</span>);</span><br><span class="line">        <span class="comment">//把元素添加到新的数组中</span></span><br><span class="line">        newElements[len] = e;</span><br><span class="line">        <span class="comment">//再用新的数组替换当前的数组 就完成了添加元素的操作</span></span><br><span class="line">        setArray(newElements);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">//最后释放lock锁</span></span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* CopyOnWriteArrayList底层就是一个对象数组</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">setArray</span><span class="params">(Object[] a)</span> </span>&#123;</span><br><span class="line">    array = a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-                
-                </div>
-            </div>
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="https://music.163.com/outchain/player?type=2&id=1840694022">
+            </audio>
+            
         </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='false'
+        data-ae='false'
+        data-ci=''
+        data-cs=''
+        data-r=''
+        data-o=''
+        data-a=''
+        data-d='false'
+    >查看评论</div>
+
+
     </div>
+    
 </div>
 
+
+    </div>
+</div>
 </body>
 
 
